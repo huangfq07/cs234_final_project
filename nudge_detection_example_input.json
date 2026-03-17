@@ -1,0 +1,2137 @@
+{
+    "_schema_doc": {
+        "description": "Multi-scenario test cases for nudge_detection.py — nudge detection pipeline",
+        "fields": {
+            "dgpsTrajectory": "Array of DGPS points with ego position, velocity, and timestamp",
+            "egoLane.width_m": "Ego lane width in meters",
+            "vehicleWidth_m": "Ego vehicle width in meters",
+            "egoSpeed_mps": "Current ego speed in m/s (for VRU safety margin)",
+            "nearFieldDeviations": "Array of [s_m, l_m] pairs — near field (0-40m), for peak detection",
+            "extendedDeviations": "Array of [s_m, l_m] pairs — extended field (0-60m), for end detection",
+            "adaptiveBaseline_m": "Pre-computed adaptive baseline (driver positioning bias)",
+            "objects": "Array of preprocessed object info matching PreprocessedObjectInfo fields"
+        },
+        "notes": [
+            "s_m = longitudinal distance along lane centerline (Frenet s)",
+            "l_m = lateral offset from lane centerline (positive = left, negative = right)",
+            "nearFieldDeviations is a PREFIX of extendedDeviations (same points, shorter range)",
+            "adaptiveBaseline_m: subtract from l to detrend — 0 means no baseline correction",
+            "Object distances are relative to lane centerline, not reference line"
+        ],
+        "test_case_fields": {
+            "expected_result": "nudge | bias | no_detection",
+            "expected_direction": "LEFT | RIGHT | null"
+        }
+    },
+    "test_cases": {
+        "single_parked_vehicle_nudge": {
+            "name": "Single parked vehicle — clear leftward nudge",
+            "expected_result": "nudge",
+            "expected_direction": "LEFT",
+            "notes": "1 peak at 0.65m, 1 object passes all filters, single-object Q1 -> NUDGE. Exercises: peak detection, start/end finding, single-object exceptionality, Q2a+Q2b.",
+            "dgpsTrajectory": [
+                {
+                    "egoX": 0.0,
+                    "egoY": 0.0,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1000000
+                },
+                {
+                    "egoX": 1.0,
+                    "egoY": 0.0,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1100000
+                },
+                {
+                    "egoX": 2.0,
+                    "egoY": 0.02,
+                    "velX": 10.0,
+                    "velY": 0.2,
+                    "cameraTime": 1200000
+                },
+                {
+                    "egoX": 3.0,
+                    "egoY": 0.06,
+                    "velX": 10.0,
+                    "velY": 0.4,
+                    "cameraTime": 1300000
+                },
+                {
+                    "egoX": 4.0,
+                    "egoY": 0.13,
+                    "velX": 10.0,
+                    "velY": 0.7,
+                    "cameraTime": 1400000
+                },
+                {
+                    "egoX": 5.0,
+                    "egoY": 0.22,
+                    "velX": 10.0,
+                    "velY": 0.9,
+                    "cameraTime": 1500000
+                },
+                {
+                    "egoX": 6.0,
+                    "egoY": 0.33,
+                    "velX": 10.0,
+                    "velY": 1.1,
+                    "cameraTime": 1600000
+                },
+                {
+                    "egoX": 7.0,
+                    "egoY": 0.44,
+                    "velX": 10.0,
+                    "velY": 1.1,
+                    "cameraTime": 1700000
+                },
+                {
+                    "egoX": 8.0,
+                    "egoY": 0.54,
+                    "velX": 10.0,
+                    "velY": 1.0,
+                    "cameraTime": 1800000
+                },
+                {
+                    "egoX": 9.0,
+                    "egoY": 0.61,
+                    "velX": 10.0,
+                    "velY": 0.7,
+                    "cameraTime": 1900000
+                },
+                {
+                    "egoX": 10.0,
+                    "egoY": 0.65,
+                    "velX": 10.0,
+                    "velY": 0.4,
+                    "cameraTime": 2000000
+                },
+                {
+                    "egoX": 11.0,
+                    "egoY": 0.63,
+                    "velX": 10.0,
+                    "velY": -0.2,
+                    "cameraTime": 2100000
+                },
+                {
+                    "egoX": 12.0,
+                    "egoY": 0.56,
+                    "velX": 10.0,
+                    "velY": -0.7,
+                    "cameraTime": 2200000
+                },
+                {
+                    "egoX": 13.0,
+                    "egoY": 0.46,
+                    "velX": 10.0,
+                    "velY": -1.0,
+                    "cameraTime": 2300000
+                },
+                {
+                    "egoX": 14.0,
+                    "egoY": 0.35,
+                    "velX": 10.0,
+                    "velY": -1.1,
+                    "cameraTime": 2400000
+                },
+                {
+                    "egoX": 15.0,
+                    "egoY": 0.24,
+                    "velX": 10.0,
+                    "velY": -1.1,
+                    "cameraTime": 2500000
+                },
+                {
+                    "egoX": 16.0,
+                    "egoY": 0.15,
+                    "velX": 10.0,
+                    "velY": -0.9,
+                    "cameraTime": 2600000
+                },
+                {
+                    "egoX": 17.0,
+                    "egoY": 0.08,
+                    "velX": 10.0,
+                    "velY": -0.7,
+                    "cameraTime": 2700000
+                },
+                {
+                    "egoX": 18.0,
+                    "egoY": 0.03,
+                    "velX": 10.0,
+                    "velY": -0.5,
+                    "cameraTime": 2800000
+                },
+                {
+                    "egoX": 19.0,
+                    "egoY": 0.01,
+                    "velX": 10.0,
+                    "velY": -0.2,
+                    "cameraTime": 2900000
+                },
+                {
+                    "egoX": 20.0,
+                    "egoY": 0.0,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3000000
+                },
+                {
+                    "egoX": 21.0,
+                    "egoY": 0.0,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3100000
+                },
+                {
+                    "egoX": 22.0,
+                    "egoY": 0.0,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3200000
+                },
+                {
+                    "egoX": 23.0,
+                    "egoY": 0.0,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3300000
+                },
+                {
+                    "egoX": 24.0,
+                    "egoY": 0.0,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3400000
+                },
+                {
+                    "egoX": 25.0,
+                    "egoY": 0.0,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3500000
+                }
+            ],
+            "egoLane": {
+                "width_m": 3.7
+            },
+            "vehicleWidth_m": 1.85,
+            "egoSpeed_mps": 10.0,
+            "nearFieldDeviations": [
+                [
+                    0.0,
+                    0.0
+                ],
+                [
+                    1.0,
+                    0.02
+                ],
+                [
+                    2.0,
+                    0.06
+                ],
+                [
+                    3.0,
+                    0.13
+                ],
+                [
+                    4.0,
+                    0.22
+                ],
+                [
+                    5.0,
+                    0.33
+                ],
+                [
+                    6.0,
+                    0.44
+                ],
+                [
+                    7.0,
+                    0.54
+                ],
+                [
+                    8.0,
+                    0.61
+                ],
+                [
+                    9.0,
+                    0.65
+                ],
+                [
+                    10.0,
+                    0.63
+                ],
+                [
+                    11.0,
+                    0.56
+                ],
+                [
+                    12.0,
+                    0.46
+                ],
+                [
+                    13.0,
+                    0.35
+                ],
+                [
+                    14.0,
+                    0.24
+                ],
+                [
+                    15.0,
+                    0.15
+                ],
+                [
+                    16.0,
+                    0.08
+                ],
+                [
+                    17.0,
+                    0.03
+                ],
+                [
+                    18.0,
+                    0.01
+                ],
+                [
+                    19.0,
+                    0.0
+                ]
+            ],
+            "extendedDeviations": [
+                [
+                    0.0,
+                    0.0
+                ],
+                [
+                    1.0,
+                    0.02
+                ],
+                [
+                    2.0,
+                    0.06
+                ],
+                [
+                    3.0,
+                    0.13
+                ],
+                [
+                    4.0,
+                    0.22
+                ],
+                [
+                    5.0,
+                    0.33
+                ],
+                [
+                    6.0,
+                    0.44
+                ],
+                [
+                    7.0,
+                    0.54
+                ],
+                [
+                    8.0,
+                    0.61
+                ],
+                [
+                    9.0,
+                    0.65
+                ],
+                [
+                    10.0,
+                    0.63
+                ],
+                [
+                    11.0,
+                    0.56
+                ],
+                [
+                    12.0,
+                    0.46
+                ],
+                [
+                    13.0,
+                    0.35
+                ],
+                [
+                    14.0,
+                    0.24
+                ],
+                [
+                    15.0,
+                    0.15
+                ],
+                [
+                    16.0,
+                    0.08
+                ],
+                [
+                    17.0,
+                    0.03
+                ],
+                [
+                    18.0,
+                    0.01
+                ],
+                [
+                    19.0,
+                    0.0
+                ],
+                [
+                    20.0,
+                    0.0
+                ],
+                [
+                    21.0,
+                    0.0
+                ],
+                [
+                    22.0,
+                    0.0
+                ],
+                [
+                    23.0,
+                    0.0
+                ],
+                [
+                    24.0,
+                    0.0
+                ],
+                [
+                    25.0,
+                    0.0
+                ]
+            ],
+            "adaptiveBaseline_m": 0.0,
+            "objects": [
+                {
+                    "objectId": 42,
+                    "obstacleClass": "VEHICLE",
+                    "obstacleState": "PARKED",
+                    "speed_mps": 0.0,
+                    "isVRU": false,
+                    "isVehicle": true,
+                    "isLargeVehicle": false,
+                    "isOncomingVehicle": false,
+                    "isOnLeftOfTrajectory": false,
+                    "isOnLeftOfBaseline": false,
+                    "minLateralDistToLaneCenter_m": -1.2,
+                    "lateralDistToTrajectory_m": -1.8,
+                    "minLateralDistToTrajectory_m": -1.5,
+                    "minLateralDistToBaseline_m": -1.2,
+                    "distanceAheadOfEgo_m": 10.0,
+                    "distancePassedByEgo_m": -10.0,
+                    "centerSOnLaneCenter_m": 10.0,
+                    "bboxLongitudinalMin_m": 7.5,
+                    "bboxLongitudinalMax_m": 12.5,
+                    "hasFutureProjection": false,
+                    "futureDistToTrajectory_m": 0.0,
+                    "futureMinLateralDistToTrajectory_m": 0.0,
+                    "futureCenterSOnLaneCenter_m": 10.0,
+                    "headingDiffWithLaneCenter": 0.0,
+                    "inLaneLeftMargin_m": 0.65,
+                    "inLaneRightMargin_m": -0.35,
+                    "stateFlags": 0,
+                    "description": "a parked vehicle"
+                }
+            ]
+        },
+        "parked_car_row_bias": {
+            "name": "Row of 3 parked cars — bias rejection",
+            "expected_result": "bias",
+            "expected_direction": null,
+            "notes": "3 parked cars at similar distances. Peak ~0.47m barely over threshold. Exceptionality ratio ~1.1 < 1.5 -> Q1 fails -> BIAS. Exercises: bias/nudge Q1 rejection with multiple similar objects.",
+            "dgpsTrajectory": [
+                {
+                    "egoX": 0.0,
+                    "egoY": 0.0,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1000000
+                },
+                {
+                    "egoX": 1.0,
+                    "egoY": 0.05,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1100000
+                },
+                {
+                    "egoX": 2.0,
+                    "egoY": 0.12,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1200000
+                },
+                {
+                    "egoX": 3.0,
+                    "egoY": 0.22,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1300000
+                },
+                {
+                    "egoX": 4.0,
+                    "egoY": 0.30,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1400000
+                },
+                {
+                    "egoX": 5.0,
+                    "egoY": 0.36,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1500000
+                },
+                {
+                    "egoX": 6.0,
+                    "egoY": 0.40,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1600000
+                },
+                {
+                    "egoX": 7.0,
+                    "egoY": 0.43,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1700000
+                },
+                {
+                    "egoX": 8.0,
+                    "egoY": 0.45,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1800000
+                },
+                {
+                    "egoX": 9.0,
+                    "egoY": 0.47,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1900000
+                },
+                {
+                    "egoX": 10.0,
+                    "egoY": 0.46,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2000000
+                },
+                {
+                    "egoX": 11.0,
+                    "egoY": 0.44,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2100000
+                },
+                {
+                    "egoX": 12.0,
+                    "egoY": 0.43,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2200000
+                },
+                {
+                    "egoX": 13.0,
+                    "egoY": 0.44,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2300000
+                },
+                {
+                    "egoX": 14.0,
+                    "egoY": 0.45,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2400000
+                },
+                {
+                    "egoX": 15.0,
+                    "egoY": 0.44,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2500000
+                },
+                {
+                    "egoX": 16.0,
+                    "egoY": 0.42,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2600000
+                },
+                {
+                    "egoX": 17.0,
+                    "egoY": 0.38,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2700000
+                },
+                {
+                    "egoX": 18.0,
+                    "egoY": 0.32,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2800000
+                },
+                {
+                    "egoX": 19.0,
+                    "egoY": 0.25,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2900000
+                },
+                {
+                    "egoX": 20.0,
+                    "egoY": 0.18,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3000000
+                },
+                {
+                    "egoX": 21.0,
+                    "egoY": 0.10,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3100000
+                },
+                {
+                    "egoX": 22.0,
+                    "egoY": 0.05,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3200000
+                },
+                {
+                    "egoX": 23.0,
+                    "egoY": 0.02,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3300000
+                },
+                {
+                    "egoX": 24.0,
+                    "egoY": 0.0,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3400000
+                },
+                {
+                    "egoX": 25.0,
+                    "egoY": 0.0,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3500000
+                }
+            ],
+            "egoLane": {
+                "width_m": 3.7
+            },
+            "vehicleWidth_m": 1.85,
+            "egoSpeed_mps": 10.0,
+            "nearFieldDeviations": [
+                [
+                    0.0,
+                    0.0
+                ],
+                [
+                    1.0,
+                    0.05
+                ],
+                [
+                    2.0,
+                    0.12
+                ],
+                [
+                    3.0,
+                    0.22
+                ],
+                [
+                    4.0,
+                    0.30
+                ],
+                [
+                    5.0,
+                    0.36
+                ],
+                [
+                    6.0,
+                    0.40
+                ],
+                [
+                    7.0,
+                    0.43
+                ],
+                [
+                    8.0,
+                    0.45
+                ],
+                [
+                    9.0,
+                    0.47
+                ],
+                [
+                    10.0,
+                    0.46
+                ],
+                [
+                    11.0,
+                    0.44
+                ],
+                [
+                    12.0,
+                    0.43
+                ],
+                [
+                    13.0,
+                    0.44
+                ],
+                [
+                    14.0,
+                    0.45
+                ],
+                [
+                    15.0,
+                    0.44
+                ],
+                [
+                    16.0,
+                    0.42
+                ],
+                [
+                    17.0,
+                    0.38
+                ],
+                [
+                    18.0,
+                    0.32
+                ],
+                [
+                    19.0,
+                    0.25
+                ]
+            ],
+            "extendedDeviations": [
+                [
+                    0.0,
+                    0.0
+                ],
+                [
+                    1.0,
+                    0.05
+                ],
+                [
+                    2.0,
+                    0.12
+                ],
+                [
+                    3.0,
+                    0.22
+                ],
+                [
+                    4.0,
+                    0.30
+                ],
+                [
+                    5.0,
+                    0.36
+                ],
+                [
+                    6.0,
+                    0.40
+                ],
+                [
+                    7.0,
+                    0.43
+                ],
+                [
+                    8.0,
+                    0.45
+                ],
+                [
+                    9.0,
+                    0.47
+                ],
+                [
+                    10.0,
+                    0.46
+                ],
+                [
+                    11.0,
+                    0.44
+                ],
+                [
+                    12.0,
+                    0.43
+                ],
+                [
+                    13.0,
+                    0.44
+                ],
+                [
+                    14.0,
+                    0.45
+                ],
+                [
+                    15.0,
+                    0.44
+                ],
+                [
+                    16.0,
+                    0.42
+                ],
+                [
+                    17.0,
+                    0.38
+                ],
+                [
+                    18.0,
+                    0.32
+                ],
+                [
+                    19.0,
+                    0.25
+                ],
+                [
+                    20.0,
+                    0.18
+                ],
+                [
+                    21.0,
+                    0.10
+                ],
+                [
+                    22.0,
+                    0.05
+                ],
+                [
+                    23.0,
+                    0.02
+                ],
+                [
+                    24.0,
+                    0.0
+                ],
+                [
+                    25.0,
+                    0.0
+                ]
+            ],
+            "adaptiveBaseline_m": 0.0,
+            "objects": [
+                {
+                    "objectId": 101,
+                    "obstacleClass": "VEHICLE",
+                    "obstacleState": "PARKED",
+                    "speed_mps": 0.0,
+                    "isVRU": false,
+                    "isVehicle": true,
+                    "isLargeVehicle": false,
+                    "isOncomingVehicle": false,
+                    "isOnLeftOfTrajectory": false,
+                    "isOnLeftOfBaseline": false,
+                    "minLateralDistToLaneCenter_m": -1.3,
+                    "lateralDistToTrajectory_m": -1.7,
+                    "minLateralDistToTrajectory_m": -1.4,
+                    "minLateralDistToBaseline_m": -1.3,
+                    "distanceAheadOfEgo_m": 5.0,
+                    "distancePassedByEgo_m": -5.0,
+                    "centerSOnLaneCenter_m": 5.0,
+                    "bboxLongitudinalMin_m": 2.5,
+                    "bboxLongitudinalMax_m": 7.5,
+                    "hasFutureProjection": false,
+                    "futureDistToTrajectory_m": 0.0,
+                    "futureMinLateralDistToTrajectory_m": 0.0,
+                    "futureCenterSOnLaneCenter_m": 5.0,
+                    "headingDiffWithLaneCenter": 0.0,
+                    "inLaneLeftMargin_m": 0.55,
+                    "inLaneRightMargin_m": -0.45,
+                    "stateFlags": 0,
+                    "description": "a parked vehicle"
+                },
+                {
+                    "objectId": 102,
+                    "obstacleClass": "VEHICLE",
+                    "obstacleState": "PARKED",
+                    "speed_mps": 0.0,
+                    "isVRU": false,
+                    "isVehicle": true,
+                    "isLargeVehicle": false,
+                    "isOncomingVehicle": false,
+                    "isOnLeftOfTrajectory": false,
+                    "isOnLeftOfBaseline": false,
+                    "minLateralDistToLaneCenter_m": -1.25,
+                    "lateralDistToTrajectory_m": -1.65,
+                    "minLateralDistToTrajectory_m": -1.35,
+                    "minLateralDistToBaseline_m": -1.25,
+                    "distanceAheadOfEgo_m": 13.0,
+                    "distancePassedByEgo_m": -13.0,
+                    "centerSOnLaneCenter_m": 13.0,
+                    "bboxLongitudinalMin_m": 10.5,
+                    "bboxLongitudinalMax_m": 15.5,
+                    "hasFutureProjection": false,
+                    "futureDistToTrajectory_m": 0.0,
+                    "futureMinLateralDistToTrajectory_m": 0.0,
+                    "futureCenterSOnLaneCenter_m": 13.0,
+                    "headingDiffWithLaneCenter": 0.0,
+                    "inLaneLeftMargin_m": 0.60,
+                    "inLaneRightMargin_m": -0.40,
+                    "stateFlags": 0,
+                    "description": "a parked vehicle"
+                },
+                {
+                    "objectId": 103,
+                    "obstacleClass": "VEHICLE",
+                    "obstacleState": "PARKED",
+                    "speed_mps": 0.0,
+                    "isVRU": false,
+                    "isVehicle": true,
+                    "isLargeVehicle": false,
+                    "isOncomingVehicle": false,
+                    "isOnLeftOfTrajectory": false,
+                    "isOnLeftOfBaseline": false,
+                    "minLateralDistToLaneCenter_m": -1.35,
+                    "lateralDistToTrajectory_m": -1.75,
+                    "minLateralDistToTrajectory_m": -1.45,
+                    "minLateralDistToBaseline_m": -1.35,
+                    "distanceAheadOfEgo_m": 21.0,
+                    "distancePassedByEgo_m": -21.0,
+                    "centerSOnLaneCenter_m": 21.0,
+                    "bboxLongitudinalMin_m": 18.5,
+                    "bboxLongitudinalMax_m": 23.5,
+                    "hasFutureProjection": false,
+                    "futureDistToTrajectory_m": 0.0,
+                    "futureMinLateralDistToTrajectory_m": 0.0,
+                    "futureCenterSOnLaneCenter_m": 21.0,
+                    "headingDiffWithLaneCenter": 0.0,
+                    "inLaneLeftMargin_m": 0.50,
+                    "inLaneRightMargin_m": -0.50,
+                    "stateFlags": 0,
+                    "description": "a parked vehicle"
+                }
+            ]
+        },
+        "vru_pedestrian_nudge": {
+            "name": "Pedestrian on right — sharp leftward nudge with VRU buffer",
+            "expected_result": "nudge",
+            "expected_direction": "LEFT",
+            "notes": "1 VRU object, adjusted dist = raw 1.2 - 1.0 buffer = 0.2m. Single exceptional -> NUDGE. Exercises: VRU buffer in adjusted distance, VRU safety margin (1.0m at 10mps).",
+            "dgpsTrajectory": [
+                {
+                    "egoX": 0.0,
+                    "egoY": 0.0,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1000000
+                },
+                {
+                    "egoX": 1.0,
+                    "egoY": 0.0,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1100000
+                },
+                {
+                    "egoX": 2.0,
+                    "egoY": 0.02,
+                    "velX": 10.0,
+                    "velY": 0.2,
+                    "cameraTime": 1200000
+                },
+                {
+                    "egoX": 3.0,
+                    "egoY": 0.08,
+                    "velX": 10.0,
+                    "velY": 0.6,
+                    "cameraTime": 1300000
+                },
+                {
+                    "egoX": 4.0,
+                    "egoY": 0.18,
+                    "velX": 10.0,
+                    "velY": 1.0,
+                    "cameraTime": 1400000
+                },
+                {
+                    "egoX": 5.0,
+                    "egoY": 0.32,
+                    "velX": 10.0,
+                    "velY": 1.4,
+                    "cameraTime": 1500000
+                },
+                {
+                    "egoX": 6.0,
+                    "egoY": 0.48,
+                    "velX": 10.0,
+                    "velY": 1.6,
+                    "cameraTime": 1600000
+                },
+                {
+                    "egoX": 7.0,
+                    "egoY": 0.64,
+                    "velX": 10.0,
+                    "velY": 1.6,
+                    "cameraTime": 1700000
+                },
+                {
+                    "egoX": 8.0,
+                    "egoY": 0.76,
+                    "velX": 10.0,
+                    "velY": 1.2,
+                    "cameraTime": 1800000
+                },
+                {
+                    "egoX": 9.0,
+                    "egoY": 0.82,
+                    "velX": 10.0,
+                    "velY": 0.6,
+                    "cameraTime": 1900000
+                },
+                {
+                    "egoX": 10.0,
+                    "egoY": 0.80,
+                    "velX": 10.0,
+                    "velY": -0.2,
+                    "cameraTime": 2000000
+                },
+                {
+                    "egoX": 11.0,
+                    "egoY": 0.72,
+                    "velX": 10.0,
+                    "velY": -0.8,
+                    "cameraTime": 2100000
+                },
+                {
+                    "egoX": 12.0,
+                    "egoY": 0.60,
+                    "velX": 10.0,
+                    "velY": -1.2,
+                    "cameraTime": 2200000
+                },
+                {
+                    "egoX": 13.0,
+                    "egoY": 0.46,
+                    "velX": 10.0,
+                    "velY": -1.4,
+                    "cameraTime": 2300000
+                },
+                {
+                    "egoX": 14.0,
+                    "egoY": 0.32,
+                    "velX": 10.0,
+                    "velY": -1.4,
+                    "cameraTime": 2400000
+                },
+                {
+                    "egoX": 15.0,
+                    "egoY": 0.20,
+                    "velX": 10.0,
+                    "velY": -1.2,
+                    "cameraTime": 2500000
+                },
+                {
+                    "egoX": 16.0,
+                    "egoY": 0.10,
+                    "velX": 10.0,
+                    "velY": -1.0,
+                    "cameraTime": 2600000
+                },
+                {
+                    "egoX": 17.0,
+                    "egoY": 0.04,
+                    "velX": 10.0,
+                    "velY": -0.6,
+                    "cameraTime": 2700000
+                },
+                {
+                    "egoX": 18.0,
+                    "egoY": 0.01,
+                    "velX": 10.0,
+                    "velY": -0.3,
+                    "cameraTime": 2800000
+                },
+                {
+                    "egoX": 19.0,
+                    "egoY": 0.0,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2900000
+                },
+                {
+                    "egoX": 20.0,
+                    "egoY": 0.0,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3000000
+                },
+                {
+                    "egoX": 21.0,
+                    "egoY": 0.0,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3100000
+                },
+                {
+                    "egoX": 22.0,
+                    "egoY": 0.0,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3200000
+                },
+                {
+                    "egoX": 23.0,
+                    "egoY": 0.0,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3300000
+                },
+                {
+                    "egoX": 24.0,
+                    "egoY": 0.0,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3400000
+                },
+                {
+                    "egoX": 25.0,
+                    "egoY": 0.0,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3500000
+                }
+            ],
+            "egoLane": {
+                "width_m": 3.7
+            },
+            "vehicleWidth_m": 1.85,
+            "egoSpeed_mps": 10.0,
+            "nearFieldDeviations": [
+                [
+                    0.0,
+                    0.0
+                ],
+                [
+                    1.0,
+                    0.02
+                ],
+                [
+                    2.0,
+                    0.08
+                ],
+                [
+                    3.0,
+                    0.18
+                ],
+                [
+                    4.0,
+                    0.32
+                ],
+                [
+                    5.0,
+                    0.48
+                ],
+                [
+                    6.0,
+                    0.64
+                ],
+                [
+                    7.0,
+                    0.76
+                ],
+                [
+                    8.0,
+                    0.82
+                ],
+                [
+                    9.0,
+                    0.80
+                ],
+                [
+                    10.0,
+                    0.72
+                ],
+                [
+                    11.0,
+                    0.60
+                ],
+                [
+                    12.0,
+                    0.46
+                ],
+                [
+                    13.0,
+                    0.32
+                ],
+                [
+                    14.0,
+                    0.20
+                ],
+                [
+                    15.0,
+                    0.10
+                ],
+                [
+                    16.0,
+                    0.04
+                ],
+                [
+                    17.0,
+                    0.01
+                ],
+                [
+                    18.0,
+                    0.0
+                ],
+                [
+                    19.0,
+                    0.0
+                ]
+            ],
+            "extendedDeviations": [
+                [
+                    0.0,
+                    0.0
+                ],
+                [
+                    1.0,
+                    0.02
+                ],
+                [
+                    2.0,
+                    0.08
+                ],
+                [
+                    3.0,
+                    0.18
+                ],
+                [
+                    4.0,
+                    0.32
+                ],
+                [
+                    5.0,
+                    0.48
+                ],
+                [
+                    6.0,
+                    0.64
+                ],
+                [
+                    7.0,
+                    0.76
+                ],
+                [
+                    8.0,
+                    0.82
+                ],
+                [
+                    9.0,
+                    0.80
+                ],
+                [
+                    10.0,
+                    0.72
+                ],
+                [
+                    11.0,
+                    0.60
+                ],
+                [
+                    12.0,
+                    0.46
+                ],
+                [
+                    13.0,
+                    0.32
+                ],
+                [
+                    14.0,
+                    0.20
+                ],
+                [
+                    15.0,
+                    0.10
+                ],
+                [
+                    16.0,
+                    0.04
+                ],
+                [
+                    17.0,
+                    0.01
+                ],
+                [
+                    18.0,
+                    0.0
+                ],
+                [
+                    19.0,
+                    0.0
+                ],
+                [
+                    20.0,
+                    0.0
+                ],
+                [
+                    21.0,
+                    0.0
+                ],
+                [
+                    22.0,
+                    0.0
+                ],
+                [
+                    23.0,
+                    0.0
+                ],
+                [
+                    24.0,
+                    0.0
+                ],
+                [
+                    25.0,
+                    0.0
+                ]
+            ],
+            "adaptiveBaseline_m": 0.0,
+            "objects": [
+                {
+                    "objectId": 201,
+                    "obstacleClass": "PEDESTRIAN",
+                    "obstacleState": "STOPPED",
+                    "speed_mps": 0.0,
+                    "isVRU": true,
+                    "isVehicle": false,
+                    "isLargeVehicle": false,
+                    "isOncomingVehicle": false,
+                    "isOnLeftOfTrajectory": false,
+                    "isOnLeftOfBaseline": false,
+                    "minLateralDistToLaneCenter_m": -1.2,
+                    "lateralDistToTrajectory_m": -2.0,
+                    "minLateralDistToTrajectory_m": -1.95,
+                    "minLateralDistToBaseline_m": -1.2,
+                    "distanceAheadOfEgo_m": 9.0,
+                    "distancePassedByEgo_m": -9.0,
+                    "centerSOnLaneCenter_m": 9.0,
+                    "bboxLongitudinalMin_m": 8.5,
+                    "bboxLongitudinalMax_m": 9.5,
+                    "hasFutureProjection": false,
+                    "futureDistToTrajectory_m": 0.0,
+                    "futureMinLateralDistToTrajectory_m": 0.0,
+                    "futureCenterSOnLaneCenter_m": 9.0,
+                    "headingDiffWithLaneCenter": 0.0,
+                    "inLaneLeftMargin_m": 0.65,
+                    "inLaneRightMargin_m": -0.35,
+                    "stateFlags": 0,
+                    "description": "a pedestrian"
+                }
+            ]
+        },
+        "wide_lane_baseline_nudge": {
+            "name": "Wide lane, baseline detrended — rightward nudge to truck on left",
+            "expected_result": "nudge",
+            "expected_direction": "RIGHT",
+            "notes": "Wide 5.0m lane, driver biased 0.8m left (baseline). Raw deviations: 0.8m + rightward bump. After detrending by 0.8m baseline, a rightward peak of -0.6m is revealed (truck on left). Exercises: baseline detrending, rightward direction, large vehicle buffer (0.6m).",
+            "dgpsTrajectory": [
+                {
+                    "egoX": 0.0,
+                    "egoY": 0.80,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1000000
+                },
+                {
+                    "egoX": 1.0,
+                    "egoY": 0.80,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1100000
+                },
+                {
+                    "egoX": 2.0,
+                    "egoY": 0.78,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1200000
+                },
+                {
+                    "egoX": 3.0,
+                    "egoY": 0.72,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1300000
+                },
+                {
+                    "egoX": 4.0,
+                    "egoY": 0.62,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1400000
+                },
+                {
+                    "egoX": 5.0,
+                    "egoY": 0.48,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1500000
+                },
+                {
+                    "egoX": 6.0,
+                    "egoY": 0.34,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1600000
+                },
+                {
+                    "egoX": 7.0,
+                    "egoY": 0.24,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1700000
+                },
+                {
+                    "egoX": 8.0,
+                    "egoY": 0.20,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1800000
+                },
+                {
+                    "egoX": 9.0,
+                    "egoY": 0.24,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1900000
+                },
+                {
+                    "egoX": 10.0,
+                    "egoY": 0.34,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2000000
+                },
+                {
+                    "egoX": 11.0,
+                    "egoY": 0.48,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2100000
+                },
+                {
+                    "egoX": 12.0,
+                    "egoY": 0.60,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2200000
+                },
+                {
+                    "egoX": 13.0,
+                    "egoY": 0.70,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2300000
+                },
+                {
+                    "egoX": 14.0,
+                    "egoY": 0.76,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2400000
+                },
+                {
+                    "egoX": 15.0,
+                    "egoY": 0.79,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2500000
+                },
+                {
+                    "egoX": 16.0,
+                    "egoY": 0.80,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2600000
+                },
+                {
+                    "egoX": 17.0,
+                    "egoY": 0.80,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2700000
+                },
+                {
+                    "egoX": 18.0,
+                    "egoY": 0.80,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2800000
+                },
+                {
+                    "egoX": 19.0,
+                    "egoY": 0.80,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2900000
+                },
+                {
+                    "egoX": 20.0,
+                    "egoY": 0.80,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3000000
+                },
+                {
+                    "egoX": 21.0,
+                    "egoY": 0.80,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3100000
+                },
+                {
+                    "egoX": 22.0,
+                    "egoY": 0.80,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3200000
+                },
+                {
+                    "egoX": 23.0,
+                    "egoY": 0.80,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3300000
+                },
+                {
+                    "egoX": 24.0,
+                    "egoY": 0.80,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3400000
+                },
+                {
+                    "egoX": 25.0,
+                    "egoY": 0.80,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3500000
+                }
+            ],
+            "egoLane": {
+                "width_m": 5.0
+            },
+            "vehicleWidth_m": 1.85,
+            "egoSpeed_mps": 10.0,
+            "nearFieldDeviations": [
+                [
+                    0.0,
+                    0.80
+                ],
+                [
+                    1.0,
+                    0.78
+                ],
+                [
+                    2.0,
+                    0.72
+                ],
+                [
+                    3.0,
+                    0.62
+                ],
+                [
+                    4.0,
+                    0.48
+                ],
+                [
+                    5.0,
+                    0.34
+                ],
+                [
+                    6.0,
+                    0.24
+                ],
+                [
+                    7.0,
+                    0.20
+                ],
+                [
+                    8.0,
+                    0.24
+                ],
+                [
+                    9.0,
+                    0.34
+                ],
+                [
+                    10.0,
+                    0.48
+                ],
+                [
+                    11.0,
+                    0.60
+                ],
+                [
+                    12.0,
+                    0.70
+                ],
+                [
+                    13.0,
+                    0.76
+                ],
+                [
+                    14.0,
+                    0.79
+                ],
+                [
+                    15.0,
+                    0.80
+                ],
+                [
+                    16.0,
+                    0.80
+                ],
+                [
+                    17.0,
+                    0.80
+                ],
+                [
+                    18.0,
+                    0.80
+                ],
+                [
+                    19.0,
+                    0.80
+                ]
+            ],
+            "extendedDeviations": [
+                [
+                    0.0,
+                    0.80
+                ],
+                [
+                    1.0,
+                    0.78
+                ],
+                [
+                    2.0,
+                    0.72
+                ],
+                [
+                    3.0,
+                    0.62
+                ],
+                [
+                    4.0,
+                    0.48
+                ],
+                [
+                    5.0,
+                    0.34
+                ],
+                [
+                    6.0,
+                    0.24
+                ],
+                [
+                    7.0,
+                    0.20
+                ],
+                [
+                    8.0,
+                    0.24
+                ],
+                [
+                    9.0,
+                    0.34
+                ],
+                [
+                    10.0,
+                    0.48
+                ],
+                [
+                    11.0,
+                    0.60
+                ],
+                [
+                    12.0,
+                    0.70
+                ],
+                [
+                    13.0,
+                    0.76
+                ],
+                [
+                    14.0,
+                    0.79
+                ],
+                [
+                    15.0,
+                    0.80
+                ],
+                [
+                    16.0,
+                    0.80
+                ],
+                [
+                    17.0,
+                    0.80
+                ],
+                [
+                    18.0,
+                    0.80
+                ],
+                [
+                    19.0,
+                    0.80
+                ],
+                [
+                    20.0,
+                    0.80
+                ],
+                [
+                    21.0,
+                    0.80
+                ],
+                [
+                    22.0,
+                    0.80
+                ],
+                [
+                    23.0,
+                    0.80
+                ],
+                [
+                    24.0,
+                    0.80
+                ],
+                [
+                    25.0,
+                    0.80
+                ]
+            ],
+            "adaptiveBaseline_m": 0.8,
+            "objects": [
+                {
+                    "objectId": 301,
+                    "obstacleClass": "VEHICLE",
+                    "obstacleState": "PARKED",
+                    "speed_mps": 0.0,
+                    "isVRU": false,
+                    "isVehicle": true,
+                    "isLargeVehicle": true,
+                    "isOncomingVehicle": false,
+                    "isOnLeftOfTrajectory": true,
+                    "isOnLeftOfBaseline": true,
+                    "minLateralDistToLaneCenter_m": 1.8,
+                    "lateralDistToTrajectory_m": 1.0,
+                    "minLateralDistToTrajectory_m": 1.4,
+                    "minLateralDistToBaseline_m": 1.0,
+                    "distanceAheadOfEgo_m": 8.0,
+                    "distancePassedByEgo_m": -8.0,
+                    "centerSOnLaneCenter_m": 8.0,
+                    "bboxLongitudinalMin_m": 4.0,
+                    "bboxLongitudinalMax_m": 12.0,
+                    "hasFutureProjection": false,
+                    "futureDistToTrajectory_m": 0.0,
+                    "futureMinLateralDistToTrajectory_m": 0.0,
+                    "futureCenterSOnLaneCenter_m": 8.0,
+                    "headingDiffWithLaneCenter": 0.0,
+                    "inLaneLeftMargin_m": -0.3,
+                    "inLaneRightMargin_m": 0.7,
+                    "stateFlags": 0,
+                    "description": "a parked truck"
+                }
+            ]
+        },
+        "no_peak_flat_trajectory": {
+            "name": "Straight driving with minor noise — no detection",
+            "expected_result": "no_detection",
+            "expected_direction": null,
+            "notes": "Minor noise +/-0.15m, no peak exceeds 0.4m threshold. 0 peaks detected -> early exit, no hypotheses. Exercises: early exit path when no peaks survive filtering.",
+            "dgpsTrajectory": [
+                {
+                    "egoX": 0.0,
+                    "egoY": 0.0,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1000000
+                },
+                {
+                    "egoX": 1.0,
+                    "egoY": 0.03,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1100000
+                },
+                {
+                    "egoX": 2.0,
+                    "egoY": -0.02,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1200000
+                },
+                {
+                    "egoX": 3.0,
+                    "egoY": 0.05,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1300000
+                },
+                {
+                    "egoX": 4.0,
+                    "egoY": -0.04,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1400000
+                },
+                {
+                    "egoX": 5.0,
+                    "egoY": 0.08,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1500000
+                },
+                {
+                    "egoX": 6.0,
+                    "egoY": -0.06,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1600000
+                },
+                {
+                    "egoX": 7.0,
+                    "egoY": 0.10,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1700000
+                },
+                {
+                    "egoX": 8.0,
+                    "egoY": -0.03,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1800000
+                },
+                {
+                    "egoX": 9.0,
+                    "egoY": 0.07,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 1900000
+                },
+                {
+                    "egoX": 10.0,
+                    "egoY": -0.05,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2000000
+                },
+                {
+                    "egoX": 11.0,
+                    "egoY": 0.04,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2100000
+                },
+                {
+                    "egoX": 12.0,
+                    "egoY": -0.08,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2200000
+                },
+                {
+                    "egoX": 13.0,
+                    "egoY": 0.06,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2300000
+                },
+                {
+                    "egoX": 14.0,
+                    "egoY": -0.02,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2400000
+                },
+                {
+                    "egoX": 15.0,
+                    "egoY": 0.03,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2500000
+                },
+                {
+                    "egoX": 16.0,
+                    "egoY": -0.05,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2600000
+                },
+                {
+                    "egoX": 17.0,
+                    "egoY": 0.02,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2700000
+                },
+                {
+                    "egoX": 18.0,
+                    "egoY": -0.04,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2800000
+                },
+                {
+                    "egoX": 19.0,
+                    "egoY": 0.01,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 2900000
+                },
+                {
+                    "egoX": 20.0,
+                    "egoY": 0.0,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3000000
+                },
+                {
+                    "egoX": 21.0,
+                    "egoY": -0.03,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3100000
+                },
+                {
+                    "egoX": 22.0,
+                    "egoY": 0.05,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3200000
+                },
+                {
+                    "egoX": 23.0,
+                    "egoY": -0.01,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3300000
+                },
+                {
+                    "egoX": 24.0,
+                    "egoY": 0.03,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3400000
+                },
+                {
+                    "egoX": 25.0,
+                    "egoY": 0.0,
+                    "velX": 10.0,
+                    "velY": 0.0,
+                    "cameraTime": 3500000
+                }
+            ],
+            "egoLane": {
+                "width_m": 3.7
+            },
+            "vehicleWidth_m": 1.85,
+            "egoSpeed_mps": 10.0,
+            "nearFieldDeviations": [
+                [
+                    0.0,
+                    0.0
+                ],
+                [
+                    1.0,
+                    0.03
+                ],
+                [
+                    2.0,
+                    -0.02
+                ],
+                [
+                    3.0,
+                    0.05
+                ],
+                [
+                    4.0,
+                    -0.04
+                ],
+                [
+                    5.0,
+                    0.08
+                ],
+                [
+                    6.0,
+                    -0.06
+                ],
+                [
+                    7.0,
+                    0.10
+                ],
+                [
+                    8.0,
+                    -0.03
+                ],
+                [
+                    9.0,
+                    0.07
+                ],
+                [
+                    10.0,
+                    -0.05
+                ],
+                [
+                    11.0,
+                    0.04
+                ],
+                [
+                    12.0,
+                    -0.08
+                ],
+                [
+                    13.0,
+                    0.06
+                ],
+                [
+                    14.0,
+                    -0.02
+                ],
+                [
+                    15.0,
+                    0.03
+                ],
+                [
+                    16.0,
+                    -0.05
+                ],
+                [
+                    17.0,
+                    0.02
+                ],
+                [
+                    18.0,
+                    -0.04
+                ],
+                [
+                    19.0,
+                    0.01
+                ]
+            ],
+            "extendedDeviations": [
+                [
+                    0.0,
+                    0.0
+                ],
+                [
+                    1.0,
+                    0.03
+                ],
+                [
+                    2.0,
+                    -0.02
+                ],
+                [
+                    3.0,
+                    0.05
+                ],
+                [
+                    4.0,
+                    -0.04
+                ],
+                [
+                    5.0,
+                    0.08
+                ],
+                [
+                    6.0,
+                    -0.06
+                ],
+                [
+                    7.0,
+                    0.10
+                ],
+                [
+                    8.0,
+                    -0.03
+                ],
+                [
+                    9.0,
+                    0.07
+                ],
+                [
+                    10.0,
+                    -0.05
+                ],
+                [
+                    11.0,
+                    0.04
+                ],
+                [
+                    12.0,
+                    -0.08
+                ],
+                [
+                    13.0,
+                    0.06
+                ],
+                [
+                    14.0,
+                    -0.02
+                ],
+                [
+                    15.0,
+                    0.03
+                ],
+                [
+                    16.0,
+                    -0.05
+                ],
+                [
+                    17.0,
+                    0.02
+                ],
+                [
+                    18.0,
+                    -0.04
+                ],
+                [
+                    19.0,
+                    0.01
+                ],
+                [
+                    20.0,
+                    0.0
+                ],
+                [
+                    21.0,
+                    -0.03
+                ],
+                [
+                    22.0,
+                    0.05
+                ],
+                [
+                    23.0,
+                    -0.01
+                ],
+                [
+                    24.0,
+                    0.03
+                ],
+                [
+                    25.0,
+                    0.0
+                ]
+            ],
+            "adaptiveBaseline_m": 0.0,
+            "objects": []
+        }
+    }
+}
